@@ -14,13 +14,15 @@ def sigmoid(Z):
 def initilizeW(dimension):
     return np.random.randn(dimension)
 
-def forward(input, net_struct):
+def forward(inputSize, net_struct):
+    # the first in the net_struct is the size of input. 
+    # then the number of neurals in the following layers.
     L = len(net_struct)
     W = []
-    a0 = len(input)
-    for i in range(L - 1):
-        dimension = (net_struct(i))
-        W.append(initilizeW(net_struct[i]))
+    for i in range(1, L):
+        dimension = (net_struct(i - 1), net_struct(i))
+        W.append(dimension)
+    b = np.zeros(())
         
 
 
