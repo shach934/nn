@@ -112,6 +112,9 @@ def predict(sample, label, W, b):
     y = np.max(y_hat) == y_hat
     return sum(sum(y)) / m * 100.0
 
+
+# the formal program, the size don't fit, the input is rank arrary, try to reshape it.
+
 f = gzip.open('mnist.pkl.gz', 'rb')
 train_set, valid_set, test_set = pickle.load(f)
 f.close()
