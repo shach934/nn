@@ -17,9 +17,11 @@ print(c.shape)
 
 print(c[0, 0])
 
-d = [[1,2,3],[4,5,6]]
+d = [4,5,6]
 
-d = np.array([d])
+d = np.array([d,  d])
+
+print(sum(sum(d)))
 
 print(d)
 print(d.shape)

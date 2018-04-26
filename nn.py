@@ -43,11 +43,11 @@ def forward(input, label, W, b):
  # input:   the train samples, of dimension n_x by m,
  # n_x :    length of input, 
  # m :      number of training samples.
- # label:    the labels for the train samples, dimension m by 1
+ # label:   the labels for the train samples, dimension m by 1
 
  # output is the cost func J, cached z values, the forward result p of dimension m by 1
 
- # note: by default, the last layer is sigmoid function to do classification
+ # note: the last layer is softmax to classify multiply catagories.
 
     m = input.shape[1]
     L = len(W)
@@ -61,9 +61,10 @@ def forward(input, label, W, b):
     # the last layer is sigmoid to classify type
     Z_L = np.dot(W[L - 1], A) + b[L - 1]
     cache.append(Z_L)
-    y = sigmoid(Z_L)
-    J = -sum(np.multiply(y, np.log(label)) + np.multiply(1 - y, np.log(1 - label))) / m
-
+    y = softmax(Z_L)
+    J = -sum(sum(y - label)) / m
+    # sigmoid cost function
+    # J = -sum(np.multiply(y, np.log(label)) + np.multiply(1 - y, np.log(1 - label))) / m
     return J, y, cache
  
 def backward(J, cache, label, W, b):
@@ -77,7 +78,7 @@ def backward(J, cache, label, W, b):
     
     L = len(W)
     dW, db = W, b
-    dZ = cache[-1] - label # the last layer is sigmoid, so the dz_L = a_L - y
+    dZ = cache[-1] - label # the last layer is softmax, so the dz_L = a_L - y
     for i in range(L - 1, 0, -1):
         dW[i] = np.dot(dZ, cache[i][0].T)
         db[i] = dZ
