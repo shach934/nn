@@ -5,10 +5,23 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
+def ReLU(A):
+    # Rectified Linear Unit, R(x) = x, if x > 0, R(x) = 0, if x <= 0
+    return np.max(A, 0)
+
+def sigmoid(Z):
+    # sigmoid func sig(1 / (1 + exp(-z)))
+    return 1 / (1 + np.exp(- Z))
+
+def softmax(Z):
+    # calculate the softmax of Z.
+    a = np.exp(Z)
+    return a / np.sum(a, axis = 0)
+
 def random_initialize(dimension):
     # randomly initilize the weight matrix
     # alpha: the hyperparameter, put a small number to make sure in the middle ragion 
-    alpha = 0.01 
+    alpha = 1
     np.random.seed(1)
     return np.random.randn(dimension[0], dimension[1]) * alpha
 
@@ -21,16 +34,8 @@ def initialize_W_b(inputSize, netStruc):
     for i in range(1, N_layers):
         dimension = (netStruc[i], netStruc[i - 1])
         W.append(random_initialize(dimension))
-        b.append(np.zeros((netStruc[i], 1)))
+        b.append(np.random.randn(netStruc[i], 1))
     return W, b
-
-def ReLU(A):
-    # Rectified Linear Unit, R(x) = x, if x > 0, R(x) = 0, if x <= 0
-    return np.max(A, 0)
-
-def sigmoid(Z):
-    # sigmoid func sig(1 / (1 + exp(-z)))
-    return 1 / (1 + np.exp(- Z))
 
 def forward(input, label, W, b):
 
@@ -43,7 +48,8 @@ def forward(input, label, W, b):
  # output is the cost func J, cached z values, the forward result p of dimension m by 1
 
  # note: by default, the last layer is sigmoid function to do classification
-    n_x, m = input.shape[0], input.shape[1]
+
+    m = input.shape[1]
     L = len(W)
     cache = []
     A = input
@@ -67,30 +73,34 @@ def backward(J, cache, label, W, b):
     # default the last layer is sigmoid 
     # in other layers the activation func is ReLU
 
-    # cache : the (A, w) during forward is cached. length L.
+    # cache : the (Z, W) during forward is cached. length L.
     
     L = len(W)
     dW, db = W, b
     dZ = cache[-1] - label # the last layer is sigmoid, so the dz_L = a_L - y
-    for i in range(L - 1, -1, -1):
+    for i in range(L - 1, 0, -1):
         dW[i] = np.dot(dZ, cache[i][0].T)
-        dZ = cache[i][1] * ()
+        db[i] = dZ
+        dZ = np.dot(cache[i][1].T, dZ) * (cache[i-1][0] > 0)
+    dW[0] = np.dot(dZ, cache[i][0].T)
+    db[0] = dZ
+    return dW, db
 
-
-
- 
-
-
-def nn(input, netStruc, label):
+def nn(input, netStruc, label, alpha, iters, showCost):
 # input:    the training samples, of dimension n_x  by m
 # label:    the lable for corresponding training samples, of dimension 1 by m
 # netStruc: the structure of neural network specified by the neurons in each layers, 
 # like [2, 3, 4, 5, 1], five layers in total and 2, 3, 4, 5, 1 neurons in each layer
 
-    n_x, m = input.shape[0], input.shape[1]
-    N_layers = len(netStruc)
+    n_x = input.shape[0]
     W, b = initialize_W_b(n_x, netStruc)
-    J, y, cache = forward(input, label, W, b)
-    dw, db = backward(J, cache, label, W, b)
-    
-    
+    for i in range(iters):
+        J, y, cache = forward(input, label, W, b)
+        dW, db = backward(J, cache, label, W, b)
+        W = W - alpha * dW
+        b = b - alpha * db
+        if showCost:
+            plt.plot(i, J)
+    return W, b
+
+
