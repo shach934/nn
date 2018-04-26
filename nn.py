@@ -31,6 +31,7 @@ def initialize_W_b(inputSize, netStruc):
     firstLayer = (netStruc[0], inputSize)
     W, b = [], []
     W.append(random_initialize(firstLayer))
+    b.append(np.random.randn(netStruc[0], 1))
     for i in range(1, N_layers):
         dimension = (netStruc[i], netStruc[i - 1])
         W.append(random_initialize(dimension))
