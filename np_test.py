@@ -19,7 +19,7 @@ print(c[0, 0])
 
 d = [4,5,6]
 
-d = np.array([d,  d])
+d = np.array([d,  d + 1])
 
 print(sum(sum(d)))
 

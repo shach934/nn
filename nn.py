@@ -1,9 +1,9 @@
 # this is a module for neural network
-
 # All the arrays in the module is numpy array. avoid using native python3 list.
 
 import numpy as np
 import matplotlib.pyplot as plt
+import gzip, pickle
 
 def ReLU(A):
     # Rectified Linear Unit, R(x) = x, if x > 0, R(x) = 0, if x <= 0
@@ -102,6 +102,26 @@ def nn(input, netStruc, label, alpha, iters, showCost):
         b = b - alpha * db
         if showCost:
             plt.plot(i, J)
+            plt.show()
     return W, b
 
+def predict(sample, label, W, b):
+    y_hat = forward(sample, label, W, b)
+    m = label.shape[1]
+    y = np.max(y_hat) == y_hat
+    return sum(sum(y)) / m * 100.0
 
+f = gzip.open('mnist.pkl.gz', 'rb')
+train_set, valid_set, test_set = pickle.load(f)
+f.close()
+
+train_sample, train_label = train_set[0], train_set[1]
+
+iters = 100
+showCost = True
+netStruc = [20, 50, 30, 10]
+alpha = 0.1
+for i in range(iters):
+    W, b = nn(train_sample, netStruc, train_label, alpha, iters, showCost)
+    accu = predict(test_set[0], test_set[1], W, b)
+    print(accu)
