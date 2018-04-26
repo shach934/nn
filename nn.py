@@ -1,31 +1,79 @@
-# neural network
-
-# First version: all functions, later may pack it to a class.
+# this is a module for neural network
 
 import numpy as np
 import matplotlib.pyplot as plt
 
-def ReLU(Z):
-    return np.max(0, Z)
-    
+def random_initialize(dimension):
+    # randomly initilize the weight matrix
+    # alpha: the hyperparameter, put a small number to make sure in the middle ragion 
+    alpha = 0.01 
+    return np.random.randn(dimension[0], dimension[1]) * alpha
+
+def initialize_W_b(inputSize, netStruc):
+    # randomly initialize the W, b is intialized to 0
+    N_layers = len(netStruc)
+    firstLayer = (netStruc[0], inputSize)
+    W, b = [], []
+    W.append(random_initialize(firstLayer))
+    for i in range(1, N_layers):
+        dimension = (netStruc[i], netStruc[i - 1])
+        W.append(random_initialize(dimension))
+        b.append(np.zeros((netStruc[i], 1)))
+    return W, b
+
+def ReLU(A):
+    # Rectified Linear Unit, R(x) = x, if x > 0, R(x) = 0, if x <= 0
+    return np.max(A, 0)
+
 def sigmoid(Z):
-    return 1 / (1 - np.exp(-Z))
-  
-def initilizeW(dimension):
-    return np.random.randn(dimension)
+    # sigmoid func sig(1 / (1 + exp(-z)))
+    return 1 / (1 + np.exp(- Z))
 
-def forward(inputSize, net_struct):
-    # the first in the net_struct is the size of input. 
-    # then the number of neurals in the following layers.
-    L = len(net_struct)
-    W = []
-    for i in range(1, L):
-        dimension = (net_struct(i - 1), net_struct(i))
-        W.append(dimension)
-    b = np.zeros(())
-        
+def forward(input, label, netStruc):
 
+ # forward propagation
+ # input: the train samples, of dimension n_x by m,
+ # n_x is the length of input, m is the number of training samples.
+ # label: the labels for the train samples, dimension m by 1
+ # netStruc: the structure of neural network specified by the neurons in each layers, 
+ # like [2, 3, 4, 5, 1], five layers in total and 2, 3, 4, 5, 1 neurons in each layer
 
+ # output is the cost func J, cached z values, the forward result p of dimension m by 1
 
+ # note: by default, the last layer is sigmoid function to do classification
+ 
+    nx, m = input.shape[0], input.shape[1]
+    W, b = initialize_W_b(nx, netStruc)
+    L = len(netStruc)
+    cache = []
+    A = input
+    for layer in range(L - 1):
+        A = np.dot(W[layer], A) + b[layer]
+        A = ReLU(A)
+        cache.append(A)
 
-net_struct = [4,]
+    # the last layer is sigmoid to classify type
+    Z_L = np.dot(W[L-1], A) + b[L - 1]
+    cache.append(Z_L)
+    y = sigmoid(Z_L)
+    J = - sum(np.multiply(y, np.log(label)) + np.multiply( 1 - y, np.log(1 - label)) ) / m
+    return J, y, cache, 
+ 
+def backward(J, cache, label, W, b):
+    # back propogation
+    # calculate the partial differential dw and db
+
+    # default the last layer is sigmoid 
+    # in other layers the activation func is ReLU
+
+    dW = []
+    db = []
+
+    dZ = cache[-1] - label # the last layer is sigmoid, so the dz_L = a_L - y
+
+    for i in range(L - 1, 0):
+        dW =
+ 
+
+ 
+
