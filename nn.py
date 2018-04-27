@@ -116,10 +116,23 @@ def predict(sample, label, W, b):
 # the formal program, the size don't fit, the input is rank arrary, try to reshape it.
 
 f = gzip.open('mnist.pkl.gz', 'rb')
-train_set, valid_set, test_set = pickle.load(f)
+train_set, valid_set, test_set = pickle.load(f, encoding='latin1')
 f.close()
+ 
+train_sample = train_set[0].T 
+m = train_sample.shape[1]
 
-train_sample, train_label = train_set[0], train_set[1]
+train_label = train_set[1].reshape((m, 1))
+
+print(train_label.shape)
+
+label = np.zeros((m*10,1))
+index = np.arange(m) * 10 + train_label
+
+label[train_label] = 1
+label = label.reshape((10, m))
+
+print("shape of train_sample: ", train_label.shape)
 
 iters = 100
 showCost = True

@@ -8,7 +8,6 @@ print(a)
 print(sum(a))
 
 b = np.zeros((10,1))
-print(b)
 
 c = np.array([[1,2,3]])
 print(c)
@@ -19,14 +18,13 @@ print(c[0, 0])
 
 d = [4,5,6]
 
-d = np.array([d,  d + 1])
+d = np.array( d + d)
 
-print(sum(sum(d)))
+np.reshape(d, (2, 3))
 
 print(d)
 print(d.shape)
 
-
-e = d > 2
-print(d + e)
-
+index = np.array([1,5])
+d[index] = 0
+print(d)
