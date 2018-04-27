@@ -4,7 +4,8 @@ import numpy as np
 # np zeros need tuple input
 
 a = np.random.randn(10,1)
-print(a)
+
+print(a.shape)
 print(sum(a))
 
 b = np.zeros((10,1))

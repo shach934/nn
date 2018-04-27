@@ -96,6 +96,12 @@ def nn(input, netStruc, label, alpha, iters, showCost):
 
     n_x = input.shape[0]
     W, b = initialize_W_b(n_x, netStruc)
+    for w in W:
+        print(w.shape)
+
+    for bb in b:
+        print(bb.shape)
+
     for i in range(iters):
         J, y, cache = forward(input, label, W, b)
         dW, db = backward(J, cache, label, W, b)
@@ -118,27 +124,27 @@ def predict(sample, label, W, b):
 f = gzip.open('mnist.pkl.gz', 'rb')
 train_set, valid_set, test_set = pickle.load(f, encoding='latin1')
 f.close()
- 
-train_sample = train_set[0].T 
-m = train_sample.shape[1]
 
-train_label = train_set[1].reshape((m, 1))
+m = train_set[1].shape[0]
+train_sample = np.reshape(train_set[0].T, -1, m) 
+
+train_label = train_set[1]
 
 print(train_label.shape)
 
-label = np.zeros((m*10,1))
+label = np.zeros((m*10, 1))
 index = np.arange(m) * 10 + train_label
 
 label[train_label] = 1
 label = label.reshape((10, m))
 
-print("shape of train_sample: ", train_label.shape)
+print("shape of train_sample: ", train_sample.shape)
 
 iters = 100
 showCost = True
 netStruc = [20, 50, 30, 10]
 alpha = 0.1
-for i in range(iters):
-    W, b = nn(train_sample, netStruc, train_label, alpha, iters, showCost)
-    accu = predict(test_set[0], test_set[1], W, b)
-    print(accu)
+
+W, b = nn(train_sample, netStruc, train_label, alpha, iters, showCost)
+accu = predict(test_set[0], test_set[1], W, b)
+print(accu)
