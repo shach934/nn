@@ -7,7 +7,7 @@ import gzip, pickle
 
 def ReLU(A):
     # Rectified Linear Unit, R(x) = x, if x > 0, R(x) = 0, if x <= 0
-    return np.max(A, 0)
+    return np.maximum(A, 0)
 
 def sigmoid(Z):
     # sigmoid func sig(1 / (1 + exp(-z)))
@@ -56,12 +56,12 @@ def forward(input, label, W, b):
     A = input
     for layer in range(L - 1):
         A = np.dot(W[layer], A) + b[layer]
-        cache.append((A, W))
+        cache.append((A, W[layer]))
         A = ReLU(A)
 
     # the last layer is sigmoid to classify type
     Z_L = np.dot(W[L - 1], A) + b[L - 1]
-    cache.append(Z_L)
+    cache.append((Z_L, W[L-1]))
     y = softmax(Z_L)
     J = -sum(sum(y - label)) / m
     # sigmoid cost function
@@ -79,7 +79,7 @@ def backward(J, cache, label, W, b):
     
     L = len(W)
     dW, db = W, b
-    dZ = cache[-1] - label # the last layer is softmax, so the dz_L = a_L - y
+    dZ = cache[-1][0] - label    # the last layer is softmax, so the dz_L = a_L - y
     for i in range(L - 1, 0, -1):
         dW[i] = np.dot(dZ, cache[i][0].T)
         db[i] = dZ
@@ -105,7 +105,7 @@ def nn(input, netStruc, label, alpha, iters, showCost):
     for i in range(iters):
         J, y, cache = forward(input, label, W, b)
         dW, db = backward(J, cache, label, W, b)
-        W = W - alpha * dW
+        W = [w - alpha*dw for w in W for dw in dw]
         b = b - alpha * db
         if showCost:
             plt.plot(i, J)
@@ -126,7 +126,7 @@ train_set, valid_set, test_set = pickle.load(f, encoding='latin1')
 f.close()
 
 m = train_set[1].shape[0]
-train_sample = np.reshape(train_set[0].T, -1, m) 
+train_sample = np.reshape(train_set[0].T, (-1, m)) 
 
 train_label = train_set[1]
 
@@ -145,6 +145,6 @@ showCost = True
 netStruc = [20, 50, 30, 10]
 alpha = 0.1
 
-W, b = nn(train_sample, netStruc, train_label, alpha, iters, showCost)
+W, b = nn(train_sample, netStruc, label, alpha, iters, showCost)
 accu = predict(test_set[0], test_set[1], W, b)
 print(accu)
