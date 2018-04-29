@@ -8,6 +8,11 @@ a = np.random.randn(10,1)
 print(a.shape)
 print(sum(a))
 
+a = np.array([[1,2,3],[4,5,6]])
+print(a.sum())
+print(np.sum(a, axis= 0))
+print(a / np.sum(a, axis = 0))
+
 b = np.zeros((10,1))
 
 c = np.array([[1,2,3]])
