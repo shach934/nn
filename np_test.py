@@ -3,10 +3,19 @@ import numpy as np
 # np random need number input 
 # np zeros need tuple input
 
+np.random.seed(3)
 a = np.random.randn(10,1)
+b = np.random.randn(10,1)
 
-print(a.shape)
+print(a)
+print(b)
 print(sum(a))
+
+
+w = a - b
+print(w)
+
+print(w)  # 坑啊 添加到了list里面的只是地址，原始的array改变之后，list里面的还是会随着改变！ python这个传地址是非常要命的
 
 a = np.array([[1,2,3],[4,5,6]])
 print(a.sum())

@@ -18,23 +18,16 @@ def softmax(Z):
     a = np.exp(Z)
     return a / np.sum(a, axis = 0)
 
-def random_initialize(dimension):
-    # randomly initilize the weight matrix
-    # alpha: the hyperparameter, put a small number to make sure in the middle ragion 
-    alpha = 0.1
-    np.random.seed(1)
-    return np.random.randn(dimension[0], dimension[1]) * alpha
-
 def initialize_W_b(inputSize, netStruc):
     # randomly initialize the W, b is intialized to 0
     N_layers = len(netStruc)
-    firstLayer = (netStruc[0], inputSize)
     W, b = [], []
-    W.append(random_initialize(firstLayer))
+    np.random.seed(0)
+    alpha = 0.1
+    W.append(np.random.randn(netStruc[0], inputSize) * alpha)
     b.append(np.random.randn(netStruc[0], 1))
     for i in range(1, N_layers):
-        dimension = (netStruc[i], netStruc[i - 1])
-        W.append(random_initialize(dimension))
+        W.append(np.random.randn(netStruc[i], netStruc[i - 1]) * alpha)
         b.append(np.random.randn(netStruc[i], 1))
     return W, b
 
@@ -56,12 +49,13 @@ def forward(input, label, W, b):
     A = input
     for layer in range(L - 1):
         A = np.dot(W[layer], A) + b[layer]
-        cache.append((A, W[layer]))
-        A = ReLU(A)
+        # deep copy, or cached A will change and only the last layer A be saved. 
+        cache.append((A.copy(), W[layer].copy()))   
+        A = ReLU(A)                       
 
     # the last layer is sigmoid to classify type
     Z_L = np.dot(W[L - 1], A) + b[L - 1]
-    cache.append((Z_L, W[L-1]))
+    cache.append((Z_L.copy(), W[L-1].copy()))
     y = softmax(Z_L)
     J = -(y - label).sum() / m
     # sigmoid cost function
@@ -78,14 +72,14 @@ def backward(J, cache, label, W, b, input):
     # cache : the (Z, W) during forward is cached. length L.
     
     L = len(W)
-    dW, db = [w for w in W], [bb for bb in b]
+    dW, db = [], []
     dZ = cache[-1][0] - label    # the last layer is softmax, so the dz_L = a_L - y
     for i in range(L - 1, 0, -1):
-        dW[i] = np.dot(dZ, cache[i - 1][0].T)
-        db[i] = dZ
+        dW.append(dZ.dot(cache[i - 1][0].T))
+        db.append(dZ)
         dZ = np.dot(cache[i][1].T, dZ) * (cache[i-1][0] > 0)
-    dW[0] = np.dot(dZ, input.T)
-    db[0] = dZ
+    dW.append(np.dot(dZ, input.T))
+    db.append(dZ)
     return dW, db
 
 def nn(input, netStruc, label, alpha, iters, showCost):
@@ -96,14 +90,16 @@ def nn(input, netStruc, label, alpha, iters, showCost):
 
     n_x = input.shape[0]
     W, b = initialize_W_b(n_x, netStruc)
-
+    I, J = [], []
     for i in range(iters):
-        J, y, cache = forward(input, label, W, b)
+        j, y, cache = forward(input, label, W, b)
         dW, db = backward(J, cache, label, W, b, input)
-        W = [w - alpha*dw for w, dw in zip(W, dW)]
-        b = [b - alpha*dbb for b, dbb in zip(b, db)]
+        W = [w  - alpha*dw  for w,  dw  in zip(W, dW)]
+        b = [bb - alpha*dbb for bb, dbb in zip(b, db)]
+        I.append(i)
+        J.append(j)
         if showCost:
-            plt.plot(i, J)
+            plt.plot(I, J)
             plt.show()
     return W, b
 
@@ -111,7 +107,7 @@ def predict(sample, label, W, b):
     y_hat = forward(sample, label, W, b)
     m = label.shape[1]
     y = np.max(y_hat) == y_hat
-    return sum(sum(y)) / m * 100.0
+    return y.sum() / m * 100.0
 
 def expandLabel(m, label2ex):
     label = np.zeros((10, m))
@@ -150,7 +146,7 @@ train, valid, test = loadMNIST()
 
 iters = 100
 showCost = True
-netStruc = [20, 50, 30, 10]
+netStruc = [20, 10]
 alpha = 0.1
 
 train_sample = train[0]
