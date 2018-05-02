@@ -3,6 +3,8 @@ import numpy as np
 # np random need number input 
 # np zeros need tuple input
 
+a = [1,2,3,4]
+print(a.flip())
 np.random.seed(3)
 a = np.random.randn(10,1)
 b = np.random.randn(10,1)

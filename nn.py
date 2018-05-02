@@ -62,7 +62,7 @@ def forward(input, label, W, b):
     # J = -sum(np.multiply(y, np.log(label)) + np.multiply(1 - y, np.log(1 - label))) / m
     return J, y, cache
  
-def backward(J, cache, label, W, b, input):
+def backward(J, cache, label, input):
     # back propogation
     # calculate the partial differential dw and db
 
@@ -93,7 +93,7 @@ def nn(input, netStruc, label, alpha, iters, showCost):
     I, J = [], []
     for i in range(iters):
         j, y, cache = forward(input, label, W, b)
-        dW, db = backward(J, cache, label, W, b, input)
+        dW, db = backward(J, cache, label, input)
         W = [w  - alpha*dw  for w,  dw  in zip(W, dW)]
         b = [bb - alpha*dbb for bb, dbb in zip(b, db)]
         I.append(i)
